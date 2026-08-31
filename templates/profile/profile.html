@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile & Medical Safety – RESQ{% endblock %}
+
+{% block content %}
+<div class="page-centered-container">
+
+  <!-- Page Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-size:1.6rem; font-weight:900; color:var(--text-primary); letter-spacing:-0.03em;">
+        PROFILE
+      </h1>
+      <p style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">
+        Your personal safety information
+      </p>
+    </div>
+
+    <a href="{% url 'logout' %}" class="btn btn-outline" style="min-height:36px; padding:0.35rem 0.85rem; font-size:0.8rem; color:var(--text-secondary);">
+      Log out
+    </a>
+  </div>
+
+  <!-- Profile Hero (Compact Identity Header) -->
+  <div class="card" style="padding:1.25rem 1.5rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+    <div style="width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg, var(--nav-blue) 0%, #1d4ed8 100%); color:#ffffff; font-size:1.6rem; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); flex-shrink:0;">
+      {{ user.first_name|first|default:user.username|first|upper }}
+    </div>
+    
+    <div style="flex:1; min-width:180px;">
+      <div style="font-size:1.25rem; font-weight:900; color:var(--text-primary); line-height:1.2;">
+        {{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}
+      </div>
+      <div style="font-size:0.82rem; font-weight:700; color:var(--nav-blue); text-transform:uppercase; letter-spacing:0.04em;">
+        Student
+      </div>
+    </div>
+
+    <div style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.06em;">Student ID</div>
+        <div style="font-family:var(--font-mono); font-weight:800; font-size:0.9rem; color:var(--text-primary);">
+          {{ profile.student_id|default:"Not Set" }}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.06em;">University Email</div>
+        <div style="font-size:0.88rem; color:var(--text-secondary);">
+          {{ user.email|default:"student@university.edu" }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" action="{% url 'profile' %}" id="resq-profile-form">
+    {% csrf_token %}
+
+    <!-- 1. Personal Information Section -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">👤 PERSONAL INFORMATION</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label" for="id_first_name">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_last_name">Last name</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_email">University email</label>
+        {{ form.email }}
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label" for="id_student_id">Student ID</label>
+          {{ form.student_id }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_phone_number">Mobile phone</label>
+          {{ form.phone_number }}
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" for="id_dormitory_block">Campus / Dormitory</label>
+        {{ form.dormitory_block }}
+        <span class="form-helper">Building, floor, or room number for faster first-responder dispatch</span>
+      </div>
+    </div>
+
+    <!-- 2. Emergency Medical Information Section -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">🏥 MEDICAL INFORMATION</h2>
+        <span class="badge badge-emergency">Responder Access</span>
+      </div>
+
+      <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:1.25rem; line-height:1.45;">
+        Optional information that may help responders during an emergency. Transmitted securely to Campus EMTs and medical dispatch upon SOS trigger.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="id_blood_group">Blood group</label>
+        {{ form.blood_group }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_medical_allergies">Allergies / medical conditions</label>
+        {{ form.medical_allergies }}
+        <span class="form-helper">List severe allergies (e.g. penicillin, nuts, latex), asthma, epilepsy, or diabetes</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" for="id_emergency_notes">Special instructions for responders</label>
+        {{ form.emergency_notes }}
+        <span class="form-helper">Special access codes, emergency medications location, or physical assistance needs</span>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div style="display:flex; justify-content:flex-end; margin-bottom:1.5rem;">
+      <button type="submit" class="btn btn-primary" style="min-width:200px; font-size:0.95rem;">
+        ✓ SAVE CHANGES
+      </button>
+    </div>
+  </form>
+
+  <!-- 3. Accessibility Settings Section -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">♿ ACCESSIBILITY</h2>
+      <span class="badge badge-info">System</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:0.5rem;">
+      
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">Large Text</div>
+          <div class="setting-desc">Increase text size for emergency readability (+20%)</div>
+        </div>
+        <label class="switch-toggle" for="prof-toggle-large-text">
+          <input type="checkbox" id="prof-toggle-large-text" onchange="Accessibility.toggle('largeText')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">High Contrast</div>
+          <div class="setting-desc">High-contrast stark theme with sharp borders</div>
+        </div>
+        <label class="switch-toggle" for="prof-toggle-high-contrast">
+          <input type="checkbox" id="prof-toggle-high-contrast" onchange="Accessibility.toggle('highContrast')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">Voice Assistance</div>
+          <div class="setting-desc">Speaks response updates and emergency prompts aloud</div>
+        </div>
+        <label class="switch-toggle" for="prof-toggle-voice-assist">
+          <input type="checkbox" id="prof-toggle-voice-assist" onchange="Accessibility.toggle('voiceAssist')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">Reduce Motion</div>
+          <div class="setting-desc">Disables animations, pulse waves, and rotating rings</div>
+        </div>
+        <label class="switch-toggle" for="prof-toggle-reduce-motion">
+          <input type="checkbox" id="prof-toggle-reduce-motion" onchange="Accessibility.toggle('reduceMotion')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const s = Accessibility.state;
+    const tLarge = document.getElementById('prof-toggle-large-text');
+    const tContrast = document.getElementById('prof-toggle-high-contrast');
+    const tVoice = document.getElementById('prof-toggle-voice-assist');
+    const tMotion = document.getElementById('prof-toggle-reduce-motion');
+
+    if (tLarge) tLarge.checked = s.largeText;
+    if (tContrast) tContrast.checked = s.highContrast;
+    if (tVoice) tVoice.checked = s.voiceAssist;
+    if (tMotion) tMotion.checked = s.reduceMotion;
+  });
+</script>
+{% endblock %}

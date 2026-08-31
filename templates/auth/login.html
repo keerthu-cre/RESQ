@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In – RESQ Emergency & Rapid Response{% endblock %}
+
+{% block content %}
+<div class="login-split-container">
+  
+  <!-- LEFT SECTION: Tactical Emergency & Safety Visual Area -->
+  <div class="safety-visual-panel">
+    <!-- Animated Radar & Map Pattern Background -->
+    <div class="radar-canvas-bg"></div>
+    <div class="radar-ring radar-ring-1"></div>
+    <div class="radar-ring radar-ring-2"></div>
+    <div class="radar-ring radar-ring-3"></div>
+    <div class="radar-sweep-beam"></div>
+
+    <!-- Pulsing Safety Beacons -->
+    <div class="safety-beacon-node node-1" title="Campus Police Dispatch Active"></div>
+    <div class="safety-beacon-node node-2" title="EMT Health Center Active"></div>
+    <div class="safety-beacon-node node-3" title="Campus SafeRide Patrol"></div>
+
+    <!-- Left Content Header -->
+    <div class="safety-visual-content">
+      <div class="safety-brand-badge">
+        <span class="pulse-dot" style="background:#ef4444;"></span>
+        <span>24/7 Rapid Response Network</span>
+      </div>
+
+      <h1 class="safety-visual-title">
+        Campus Safety & Emergency Dispatch
+      </h1>
+
+      <p class="safety-visual-desc">
+        Connecting students with immediate emergency response, live GPS location dispatch, and verified first responder units.
+      </p>
+    </div>
+
+    <!-- Live Telemetry / Safety Status Pills -->
+    <div class="safety-telemetry-grid safety-visual-content">
+      <div class="telemetry-pill">
+        <div class="telemetry-label">Police Dispatch</div>
+        <div class="telemetry-val">
+          <span class="pulse-dot" style="background:#10b981; width:7px; height:7px;"></span>
+          <span>Online (911)</span>
+        </div>
+      </div>
+
+      <div class="telemetry-pill">
+        <div class="telemetry-label">Campus Medical Unit</div>
+        <div class="telemetry-val">
+          <span class="pulse-dot" style="background:#10b981; width:7px; height:7px;"></span>
+          <span>Active Ready</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SECTION: Glassmorphic Tactical Login Card -->
+  <div class="login-card-container">
+    
+    <div class="login-card-header">
+      <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
+        <div class="brand-icon-shield" style="width:38px; height:38px; font-size:1.15rem;">⚡</div>
+        <span class="brand-badge">Student Portal</span>
+      </div>
+
+      <h2 class="login-card-title">Sign In Securely</h2>
+      <p class="login-card-subtitle">Your safety. One tap away.</p>
+    </div>
+
+    <!-- Demo Test Account Quick-Fills -->
+    <div class="demo-accounts-box">
+      <div class="demo-title">
+        <span>⚡ Quick Test Accounts</span>
+      </div>
+      <div class="demo-chips-row">
+        <button type="button" class="demo-chip" id="btn-fill-student">
+          <span>👨‍🎓 Fill Student (Alex)</span>
+        </button>
+        <button type="button" class="demo-chip" id="btn-fill-admin">
+          <span>👮‍♂️ Fill Admin</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <form method="post" action="{% url 'login' %}" id="student-login-form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label" for="username">Username / Student ID</label>
+        <input 
+          type="text" 
+          name="username" 
+          id="username" 
+          class="form-input" 
+          required 
+          placeholder="e.g. alex.student" 
+          autocomplete="username"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input 
+          type="password" 
+          name="password" 
+          id="password" 
+          class="form-input" 
+          required 
+          placeholder="Enter your password" 
+          autocomplete="current-password"
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg btn-login-submit" id="btn-submit-login">
+        <span>SIGN IN SECURELY →</span>
+      </button>
+    </form>
+
+    <div style="text-align:center; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color); font-size:0.88rem;">
+      Don't have an account? 
+      <a href="{% url 'register' %}" style="font-weight:800;">Register as Student</a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('btn-fill-student').addEventListener('click', () => {
+    document.getElementById('username').value = 'alex.student';
+    document.getElementById('password').value = 'safecampus123';
+    SoundFX.playBeep(520, 0.08);
+  });
+  document.getElementById('btn-fill-admin').addEventListener('click', () => {
+    document.getElementById('username').value = 'admin';
+    document.getElementById('password').value = 'admin123';
+    SoundFX.playBeep(520, 0.08);
+  });
+</script>
+{% endblock %}

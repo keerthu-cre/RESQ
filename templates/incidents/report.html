@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Report Incident – RESQ Emergency & Rapid Response{% endblock %}
+
+{% block content %}
+<div class="page-centered-container">
+  
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-size:1.6rem; font-weight:900; color:var(--text-primary); letter-spacing:-0.03em;">
+        REPORT INCIDENT
+      </h1>
+      <p style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">
+        Broadcast safety hazard, medical emergency, or security threat
+      </p>
+    </div>
+
+    <a href="{% url 'dashboard' %}" class="btn btn-outline" style="min-height:36px; padding:0.35rem 0.85rem; font-size:0.8rem;">
+      ← Dashboard
+    </a>
+  </div>
+
+  <div class="card">
+    <form method="post" action="{% url 'incident_report' %}" enctype="multipart/form-data" id="incident-report-form">
+      {% csrf_token %}
+
+      <!-- 1. Incident Type Picker -->
+      <div class="form-group">
+        <label class="form-label">1. Incident Type</label>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.6rem;">
+          <label class="dock-action-btn red type-pill-label" for="type_med" style="cursor:pointer;">
+            <input type="radio" name="incident_type" id="type_med" value="MEDICAL" required style="display:none;">
+            <span style="font-size:1.4rem;">🚑</span>
+            <span style="font-size:0.85rem; font-weight:800;">Medical</span>
+          </label>
+
+          <label class="dock-action-btn red type-pill-label" for="type_fire" style="cursor:pointer;">
+            <input type="radio" name="incident_type" id="type_fire" value="FIRE" style="display:none;">
+            <span style="font-size:1.4rem;">🔥</span>
+            <span style="font-size:0.85rem; font-weight:800;">Fire / Smoke</span>
+          </label>
+
+          <label class="dock-action-btn amber type-pill-label" for="type_threat" style="cursor:pointer;">
+            <input type="radio" name="incident_type" id="type_threat" value="PHYSICAL_THREAT" style="display:none;">
+            <span style="font-size:1.4rem;">⚠️</span>
+            <span style="font-size:0.85rem; font-weight:800;">Threat</span>
+          </label>
+
+          <label class="dock-action-btn amber type-pill-label" for="type_accident" style="cursor:pointer;">
+            <input type="radio" name="incident_type" id="type_accident" value="ACCIDENT" style="display:none;">
+            <span style="font-size:1.4rem;">💥</span>
+            <span style="font-size:0.85rem; font-weight:800;">Accident</span>
+          </label>
+
+          <label class="dock-action-btn cyan type-pill-label" for="type_suspicious" style="cursor:pointer;">
+            <input type="radio" name="incident_type" id="type_suspicious" value="SUSPICIOUS" style="display:none;">
+            <span style="font-size:1.4rem;">🕵️</span>
+            <span style="font-size:0.85rem; font-weight:800;">Suspicious</span>
+          </label>
+
+          <label class="dock-action-btn green type-pill-label" for="type_infra" style="cursor:pointer;">
+            <input type="radio" name="incident_type" id="type_infra" value="INFRASTRUCTURE" style="display:none;">
+            <span style="font-size:1.4rem;">🏗️</span>
+            <span style="font-size:0.85rem; font-weight:800;">Hazard</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 2. Urgency Selector -->
+      <div class="form-group">
+        <label class="form-label">2. Urgency Level</label>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.5rem;">
+          <label class="btn btn-outline urg-btn" for="urg_low" style="cursor:pointer; padding:0.6rem 0.4rem; min-height:40px; font-size:0.82rem;">
+            <input type="radio" name="urgency" id="urg_low" value="LOW" style="display:none;">
+            <span>Low</span>
+          </label>
+          <label class="btn btn-primary urg-btn" for="urg_med" style="cursor:pointer; padding:0.6rem 0.4rem; min-height:40px; font-size:0.82rem;">
+            <input type="radio" name="urgency" id="urg_med" value="MEDIUM" checked style="display:none;">
+            <span>Medium</span>
+          </label>
+          <label class="btn btn-outline urg-btn" for="urg_high" style="cursor:pointer; padding:0.6rem 0.4rem; min-height:40px; font-size:0.82rem;">
+            <input type="radio" name="urgency" id="urg_high" value="HIGH" style="display:none;">
+            <span>High</span>
+          </label>
+          <label class="btn btn-outline urg-btn" for="urg_critical" style="cursor:pointer; padding:0.6rem 0.4rem; min-height:40px; font-size:0.82rem; color:var(--emergency-red);">
+            <input type="radio" name="urgency" id="urg_critical" value="CRITICAL" style="display:none;">
+            <span>Critical 🚨</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. Incident Location -->
+      <div class="form-group">
+        <label class="form-label" for="location_name">3. Incident Location</label>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" name="location_name" id="location_name" class="form-input" required placeholder="e.g. Science Complex - 2nd Floor Lab 204">
+          <button type="button" class="btn btn-outline" onclick="LocationManager.requestLocation();" style="white-space:nowrap; padding:0.65rem 1rem;" title="Fetch GPS location">
+            📡 GPS
+          </button>
+        </div>
+        <input type="hidden" name="latitude" id="id_latitude">
+        <input type="hidden" name="longitude" id="id_longitude">
+        <span class="form-helper">GPS coordinates will be attached automatically when available.</span>
+      </div>
+
+      <!-- 4. Description -->
+      <div class="form-group">
+        <label class="form-label" for="description">4. Situation Description</label>
+        <textarea name="description" id="description" class="form-textarea" rows="4" placeholder="Describe what is happening, people involved, hazards, or immediate assistance needed..."></textarea>
+      </div>
+
+      <!-- 5. Photo Upload -->
+      <div class="form-group">
+        <label class="form-label" for="image_upload">5. Attach Photo (Optional)</label>
+        <input type="file" name="image" id="image_upload" class="form-input" accept="image/*" style="padding:0.6rem;">
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button type="submit" class="btn btn-emergency btn-block btn-lg">
+          🚨 Submit Emergency Report
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Highlight selected type card
+    document.querySelectorAll('.type-pill-label').forEach(label => {
+      const radio = label.querySelector('input[type="radio"]');
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('.type-pill-label').forEach(l => l.style.borderWidth = '1.5px');
+        if (radio.checked) {
+          label.style.borderWidth = '3px';
+        }
+      });
+    });
+
+    // Urgency toggle styling
+    document.querySelectorAll('.urg-btn').forEach(label => {
+      const radio = label.querySelector('input[type="radio"]');
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('.urg-btn').forEach(l => {
+          l.classList.remove('btn-primary');
+          l.classList.add('btn-outline');
+        });
+        if (radio.checked) {
+          label.classList.remove('btn-outline');
+          label.classList.add('btn-primary');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,664 @@
+/* ==========================================================================
+   RESQ — Emergency & Rapid Response
+   Command Center Components: Compact Nav Rail, Central Command Zone, Live Radar
+   ========================================================================== */
+
+/* ==========================================================================
+   1. DESKTOP 3-ZONE SPATIAL COMMAND CENTER
+   ========================================================================== */
+.resq-command-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .resq-command-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+
+/* ==========================================================================
+   2. COMPACT RESQ NAVIGATION RAIL (LEFT)
+   ========================================================================== */
+.resq-nav-rail {
+  background: var(--bg-nav);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: sticky;
+  top: calc(var(--header-height) + 12px);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-rail-item {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.68rem;
+  font-weight: 800;
+  transition: all var(--transition-fast);
+  position: relative;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-rail-item .rail-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.nav-rail-item:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.nav-rail-item.active {
+  background: var(--nav-blue-light);
+  color: var(--nav-blue);
+  border-color: var(--nav-blue-border);
+}
+
+.nav-rail-item.active::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 25%;
+  bottom: 25%;
+  width: 4px;
+  background: var(--nav-blue);
+  border-radius: var(--radius-full);
+}
+
+/* Tooltip on rail hover */
+.nav-rail-item[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 68px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #000000;
+  color: #ffffff;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+/* ==========================================================================
+   3. OPEN EMERGENCY COMMAND ZONE (CENTER)
+   ========================================================================== */
+.command-center-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+/* Status Header */
+.command-status-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.command-status-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.command-protected-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--success-green-light);
+  border: 1.5px solid var(--success-green-border);
+  color: var(--success-green);
+  padding: 0.45rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 16px rgba(25, 195, 125, 0.15);
+}
+
+/* Centerpiece SOS Control Stage */
+.sos-command-stage {
+  position: relative;
+  width: 270px;
+  height: 270px;
+  margin: 0.5rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* Slow Rotating Technical Radar Ring */
+.sos-tech-orbit {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 59, 48, 0.3);
+  pointer-events: none;
+  animation: tech-orbit-spin 22s linear infinite;
+}
+
+@keyframes tech-orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Concentric Radar Waves */
+.sos-radar-wave {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.sos-radar-wave-1 {
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(255, 59, 48, 0.3) 0%, rgba(255, 59, 48, 0) 70%);
+  animation: sos-wave-pulse 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.sos-radar-wave-2 {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(255, 59, 48, 0.15) 0%, rgba(255, 59, 48, 0) 75%);
+  animation: sos-wave-pulse 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.7s;
+}
+
+@keyframes sos-wave-pulse {
+  0% { transform: scale(0.85); opacity: 0.9; }
+  60% { opacity: 0.3; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* SVG Progress Ring */
+.sos-svg-orbit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  z-index: 6;
+}
+
+.sos-svg-track {
+  fill: none;
+  stroke: rgba(255, 59, 48, 0.18);
+  stroke-width: 8;
+}
+
+.sos-svg-fill {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 654;
+  stroke-dashoffset: 654;
+  transition: stroke-dashoffset 0.05s linear;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 20px rgba(255, 59, 48, 0.8));
+}
+
+/* Physical Emergency Activation Push Disc */
+.sos-command-disc {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ff3b30 0%, #dc2626 50%, #991b1b 100%);
+  border: 4px solid #ffffff;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 12px 35px rgba(255, 59, 48, 0.55), 0 0 0 8px rgba(255, 59, 48, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  z-index: 5;
+  outline: none;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+}
+
+.sos-command-disc:hover {
+  transform: scale(1.03);
+  box-shadow: 0 16px 45px rgba(255, 59, 48, 0.65), 0 0 0 10px rgba(255, 59, 48, 0.25);
+}
+
+.sos-command-disc.holding {
+  transform: scale(0.94);
+  box-shadow: 0 6px 20px rgba(255, 59, 48, 0.8), 0 0 0 14px rgba(255, 59, 48, 0.45);
+  background: linear-gradient(145deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%);
+}
+
+.sos-disc-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 0.1rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.sos-disc-text {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.sos-disc-sub {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.95;
+  margin-top: 0.25rem;
+}
+
+/* Instruction & Live Countdown */
+.sos-instruction-line {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  min-height: 1.4rem;
+  letter-spacing: 0.04em;
+}
+
+.sos-sub-tag {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   4. HORIZONTAL SAFETY DOCK / ACTION STRIP
+   ========================================================================== */
+.safety-dock-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 620px;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .safety-dock-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dock-action-btn {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.95rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.dock-action-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-focus);
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+}
+
+.dock-action-btn.red { border-color: rgba(255, 59, 48, 0.3); }
+.dock-action-btn.red:hover { border-color: var(--emergency-red); background: rgba(255, 59, 48, 0.05); }
+
+.dock-action-btn.cyan { border-color: rgba(6, 182, 212, 0.3); }
+.dock-action-btn.cyan:hover { border-color: var(--nav-cyan); background: rgba(6, 182, 212, 0.05); }
+
+.dock-action-btn.amber { border-color: rgba(255, 176, 32, 0.3); }
+.dock-action-btn.amber:hover { border-color: var(--warning-amber); background: rgba(255, 176, 32, 0.05); }
+
+.dock-action-btn.green { border-color: rgba(25, 195, 125, 0.3); }
+.dock-action-btn.green:hover { border-color: var(--success-green); background: rgba(25, 195, 125, 0.05); }
+
+.dock-action-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.dock-action-label {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.dock-action-desc {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+/* Emergency Shortcut Bar */
+.emergency-shortcut-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: var(--bg-nav);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0.45rem 1.15rem;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   5. LIVE SAFETY INFORMATION RAIL (RIGHT)
+   ========================================================================== */
+.safety-info-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+/* Live Safety Radar Visualization */
+.safety-radar-widget {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.radar-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.radar-screen-canvas {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: radial-gradient(circle at 50% 50%, #0c1426 0%, #070c18 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+}
+
+.radar-screen-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 50% 50%, transparent 35px, rgba(59, 130, 246, 0.15) 36px, transparent 37px),
+    radial-gradient(circle at 50% 50%, transparent 65px, rgba(59, 130, 246, 0.12) 66px, transparent 67px),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+}
+
+.radar-sweep-scanner {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(25, 195, 125, 0.35) 0deg, transparent 60deg);
+  animation: radar-spin-sweep 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes radar-spin-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.radar-center-user {
+  position: relative;
+  z-index: 5;
+  width: 22px;
+  height: 22px;
+  background: #ff3b30;
+  border: 2.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #ff3b30;
+}
+
+.radar-node-beacon {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  z-index: 4;
+}
+.radar-node-beacon.sec {
+  background: #3b82f6;
+  top: 25px;
+  left: 45px;
+  box-shadow: 0 0 8px #3b82f6;
+}
+.radar-node-beacon.med {
+  background: #19c37d;
+  bottom: 25px;
+  right: 55px;
+  box-shadow: 0 0 8px #19c37d;
+}
+.radar-node-beacon.pat {
+  background: #ffb020;
+  top: 30px;
+  right: 40px;
+  box-shadow: 0 0 8px #ffb020;
+}
+
+.radar-coords-mono {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Safety Signal Panel */
+.safety-signal-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Response Tracker Control Room Timeline */
+.response-timeline-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.response-timeline-card.active-emergency {
+  border-color: var(--emergency-red);
+  background: linear-gradient(145deg, #1d101c 0%, #130a14 100%);
+  box-shadow: 0 0 30px rgba(255, 59, 48, 0.25);
+}
+
+.timeline-v-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0.85rem 0;
+  position: relative;
+}
+
+.stepper-node-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.stepper-node-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 22px;
+  bottom: -10px;
+  width: 2px;
+  background: var(--border-color);
+  z-index: 1;
+}
+
+.stepper-node-row.completed:not(:last-child)::after {
+  background: var(--success-green);
+}
+
+.stepper-bullet {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  z-index: 2;
+}
+
+.stepper-node-row.completed .stepper-bullet {
+  background: var(--success-green);
+  border-color: var(--success-green);
+  color: #ffffff;
+}
+
+.stepper-node-row.current .stepper-bullet {
+  background: var(--nav-blue);
+  border-color: var(--nav-blue);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px var(--nav-blue-light);
+  animation: pulse-ring 1.5s infinite;
+}
+
+.stepper-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.stepper-node-row.pending .stepper-label {
+  color: var(--text-muted);
+}
+
+/* Trusted Contacts Strip */
+.trusted-contacts-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trusted-contact-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+/* Mobile Bottom Navigation Dock */
+.resq-mobile-dock {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .resq-mobile-dock {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--bottom-nav-height);
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(16px);
+    z-index: 100;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 0.5rem;
+  }
+
+  .dock-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-decoration: none;
+    gap: 2px;
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--radius-xs);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .dock-tab.active {
+    color: var(--nav-blue);
+  }
+  .dock-tab-icon {
+    font-size: 1.25rem;
+  }
+}

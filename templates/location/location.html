@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Live Location & Campus Geolocation – RESQ{% endblock %}
+
+{% block content %}
+<div class="page-centered-container">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-size:1.6rem; font-weight:900; color:var(--text-primary); letter-spacing:-0.03em;">
+        LIVE LOCATION
+      </h1>
+      <p style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">
+        High-precision campus positioning for rapid emergency response
+      </p>
+    </div>
+
+    <button type="button" class="btn btn-outline" onclick="LocationManager.requestLocation(); showToast('Refreshing GPS coordinates...', 'info');" style="min-height:38px; padding:0.4rem 0.9rem; font-size:0.82rem;">
+      📡 Refresh GPS
+    </button>
+  </div>
+
+  <!-- 1. Live Safety Radar Screen -->
+  <div class="card" style="padding:1.5rem; margin-bottom:1.25rem;">
+    <div class="card-header">
+      <h2 class="card-title">📍 GPS STATUS</h2>
+      <span class="badge badge-success" id="loc-page-status">
+        <span class="pulse-dot"></span> GPS ACTIVE
+      </span>
+    </div>
+
+    <div class="radar-screen-canvas" style="height:180px; margin:1rem 0;">
+      <div class="radar-screen-grid"></div>
+      <div class="radar-sweep-scanner"></div>
+      <div class="radar-center-user" title="You (Current Position)"></div>
+      <div class="radar-node-beacon sec" title="Security Patrol Unit"></div>
+      <div class="radar-node-beacon med" title="EMT Health Unit"></div>
+      <div class="radar-node-beacon pat" title="Campus SafeRide Patrol"></div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:0.75rem; margin-top:0.5rem;">
+      <div>
+        <div style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.06em;">CURRENT LOCATION</div>
+        <div style="font-size:1.2rem; font-weight:900; color:var(--text-primary); margin-top:2px;" id="location-display-name">
+          Main Block • Ground Floor
+        </div>
+        <div style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted); margin-top:2px;" id="location-display-coords">
+          37.77490, -122.41940 (±10m Accuracy)
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.5rem;">
+        <button type="button" class="btn btn-outline" onclick="LocationManager.shareLocation();" style="min-height:42px; font-size:0.85rem;">
+          📍 Share Beacon
+        </button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('location-modal').classList.add('active');" style="min-height:42px; font-size:0.85rem;">
+          ✏️ UPDATE LOCATION
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Manual Landmark Preset Chooser -->
+  <div class="card" style="padding:1.5rem;">
+    <div class="card-header">
+      <h2 class="card-title">🏢 KNOWN CAMPUS AREAS</h2>
+      <span class="badge badge-info">Presets</span>
+    </div>
+
+    <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:1.25rem;">
+      Select a known campus building or landmark to pinpoint your location instantly if GPS signal is weak indoors.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+      <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Library - Learning Commons" data-lat="37.7749" data-lng="-122.4194" style="text-align:left; justify-content:flex-start; padding:0.85rem 1rem;">
+        📚 Library (Main Commons)
+      </button>
+      <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Science Complex & Labs" data-lat="37.7752" data-lng="-122.4188" style="text-align:left; justify-content:flex-start; padding:0.85rem 1rem;">
+        🔬 Science Complex
+      </button>
+      <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Hostel Quad - Hall B" data-lat="37.7741" data-lng="-122.4205" style="text-align:left; justify-content:flex-start; padding:0.85rem 1rem;">
+        🏢 Hostel Quad - Hall B
+      </button>
+      <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Student Union Center" data-lat="37.7760" data-lng="-122.4190" style="text-align:left; justify-content:flex-start; padding:0.85rem 1rem;">
+        🍽️ Student Union & Dining
+      </button>
+      <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Health & Emergency Center" data-lat="37.7745" data-lng="-122.4168" style="text-align:left; justify-content:flex-start; padding:0.85rem 1rem;">
+        🏥 Health & Wellness Center
+      </button>
+      <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Sports Complex & Arena" data-lat="37.7758" data-lng="-122.4180" style="text-align:left; justify-content:flex-start; padding:0.85rem 1rem;">
+        🏋️ Sports Arena & Gym
+      </button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
