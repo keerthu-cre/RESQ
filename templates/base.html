@@ -1,0 +1,263 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#070B14">
+  <meta name="description" content="RESQ – Emergency Command Center. Instant SOS, live GPS location dispatch, incident reporting, and real-time response tracking.">
+  <title>{% block title %}RESQ – Emergency & Rapid Response{% endblock %}</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Core RESQ Global Stylesheets -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- 1. Global Header (Top Bar) -->
+  <header class="resq-topbar">
+    <div class="resq-topbar-inner">
+      <!-- ⚡ RESQ Logo -->
+      <a href="{% url 'dashboard' %}" class="resq-brand" aria-label="RESQ Emergency Command Center">
+        <div class="resq-brand-shield">⚡</div>
+        <div class="resq-brand-text">
+          <div class="resq-brand-title">RESQ</div>
+          <span class="resq-brand-sub">EMERGENCY & RAPID RESPONSE</span>
+        </div>
+      </a>
+
+      <!-- Center Status -->
+      <div class="topbar-center-status">
+        <span class="pulse-dot"></span>
+        <span>SYSTEM ONLINE</span>
+      </div>
+
+      <!-- Header Right Actions -->
+      <div class="topbar-actions">
+        {% if user.is_authenticated %}
+          <button type="button" class="icon-btn" title="Live System Notifications" aria-label="Notifications" onclick="showToast('Campus Police & Medical Response Units active.', 'info');">
+            🔔
+          </button>
+          <button type="button" class="icon-btn" id="quick-a11y-toggle" title="Accessibility & High Contrast" aria-label="Accessibility Options">
+            ♿
+          </button>
+          <button type="button" class="icon-btn" id="quick-theme-toggle" title="Toggle Daylight Shift / Dark Operations" aria-label="Toggle Theme">
+            🌓
+          </button>
+          
+          <a href="{% url 'profile' %}" class="topbar-user-pill" title="View Profile & Medical Data">
+            <div class="topbar-user-avatar">
+              {{ user.first_name|first|default:user.username|first|upper }}
+            </div>
+            <span class="topbar-user-name">{{ user.first_name|default:user.username }}</span>
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-outline" style="min-height: 38px; padding: 0.4rem 1rem; font-size: 0.85rem;">Sign In</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Global Unified Application Shell -->
+  <div class="resq-app-shell">
+    {% if user.is_authenticated %}
+    <!-- Persistent Desktop Navigation Rail -->
+    <aside class="resq-nav-rail" aria-label="RESQ Navigation Rail">
+      <a href="{% url 'dashboard' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" data-tooltip="Home Command">
+        <span class="rail-icon">🏠</span>
+        <span>Home</span>
+      </a>
+      <a href="{% url 'incident_report' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'incident_report' %}active{% endif %}" data-tooltip="Report Incident">
+        <span class="rail-icon">📝</span>
+        <span>Report</span>
+      </a>
+      <a href="{% url 'my_reports' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'my_reports' or request.resolver_match.url_name == 'incident_detail' %}active{% endif %}" data-tooltip="My Reports">
+        <span class="rail-icon">📋</span>
+        <span>Reports</span>
+      </a>
+      <a href="{% url 'location' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'location' %}active{% endif %}" data-tooltip="Live Location">
+        <span class="rail-icon">📍</span>
+        <span>Location</span>
+      </a>
+      <a href="{% url 'contacts' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'contacts' or request.resolver_match.url_name == 'add_contact' or request.resolver_match.url_name == 'edit_contact' %}active{% endif %}" data-tooltip="Emergency Contacts">
+        <span class="rail-icon">☎️</span>
+        <span>Contacts</span>
+      </a>
+      <a href="{% url 'profile' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" data-tooltip="Profile & Medical">
+        <span class="rail-icon">👤</span>
+        <span>Profile</span>
+      </a>
+      <a href="{% url 'settings' %}" class="nav-rail-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}" data-tooltip="Settings & A11y">
+        <span class="rail-icon">⚙️</span>
+        <span>Settings</span>
+      </a>
+    </aside>
+    {% endif %}
+
+    <!-- Main Content Container -->
+    <main class="resq-main-content">
+      <!-- Flash Messages -->
+      {% if messages %}
+        <div style="margin-bottom:1rem;" role="alert" aria-live="polite">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="background:var(--bg-card); border:1.5px solid var(--border-color); padding:0.85rem 1.15rem; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; box-shadow:var(--shadow-sm);">
+              <span style="font-weight:700; font-size:0.92rem;">{{ message }}</span>
+              <button type="button" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:bold; font-size:1.15rem;" onclick="this.parentElement.remove()">✕</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}
+      {% endblock %}
+    </main>
+  </div>
+
+  <!-- 3. Mobile Bottom Navigation Dock -->
+  {% if user.is_authenticated %}
+  <nav class="resq-mobile-dock" aria-label="Mobile Navigation">
+    <a href="{% url 'dashboard' %}" class="dock-tab {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" id="mob-nav-home">
+      <span class="dock-tab-icon">🏠</span>
+      <span>Home</span>
+    </a>
+    <a href="{% url 'my_reports' %}" class="dock-tab {% if request.resolver_match.url_name == 'my_reports' or request.resolver_match.url_name == 'incident_detail' %}active{% endif %}" id="mob-nav-reports">
+      <span class="dock-tab-icon">📋</span>
+      <span>Reports</span>
+    </a>
+    <a href="{% url 'location' %}" class="dock-tab {% if request.resolver_match.url_name == 'location' %}active{% endif %}" id="mob-nav-location">
+      <span class="dock-tab-icon">📍</span>
+      <span>Location</span>
+    </a>
+    <a href="{% url 'contacts' %}" class="dock-tab {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}" id="mob-nav-contacts">
+      <span class="dock-tab-icon">☎️</span>
+      <span>Contacts</span>
+    </a>
+    <a href="{% url 'profile' %}" class="dock-tab {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" id="mob-nav-profile">
+      <span class="dock-tab-icon">👤</span>
+      <span>Profile</span>
+    </a>
+  </nav>
+  {% endif %}
+
+  <!-- 4. Location Picker Modal (Strictly Isolated) -->
+  <div class="modal-backdrop" id="location-modal" role="dialog" aria-modal="true" aria-labelledby="loc-modal-title">
+    <div class="modal-content">
+      <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border-color);">
+        <h2 class="card-title" id="loc-modal-title">📍 SELECT YOUR LOCATION</h2>
+        <button type="button" class="icon-btn" onclick="closeModal('location-modal')" aria-label="Close location modal">✕</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label class="form-label" for="manual-location-input">Custom Location</label>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" id="manual-location-input" class="form-input" placeholder="Enter room / building (e.g. Science Lab 308)">
+          <button type="button" id="btn-save-manual-location" class="btn btn-primary" style="white-space:nowrap; padding:0.65rem 1rem;">SAVE LOCATION</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.6rem;">
+          Known Campus Areas
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.55rem;">
+          <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Library - Learning Commons" data-lat="37.7749" data-lng="-122.4194" style="font-size:0.82rem; padding:0.55rem;">📚 Library</button>
+          <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Science Complex & Labs" data-lat="37.7752" data-lng="-122.4188" style="font-size:0.82rem; padding:0.55rem;">🔬 Science Hall</button>
+          <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Hostel Quad - Hall B" data-lat="37.7741" data-lng="-122.4205" style="font-size:0.82rem; padding:0.55rem;">🏢 Hostel</button>
+          <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Student Union Center" data-lat="37.7760" data-lng="-122.4190" style="font-size:0.82rem; padding:0.55rem;">🍽️ Student Union</button>
+          <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Health & Emergency Center" data-lat="37.7745" data-lng="-122.4168" style="font-size:0.82rem; padding:0.55rem;">🏥 Health Center</button>
+          <button type="button" class="btn btn-outline landmark-preset-btn" data-name="Sports Complex & Arena" data-lat="37.7758" data-lng="-122.4180" style="font-size:0.82rem; padding:0.55rem;">🏋️ Sports Complex</button>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border-color);">
+        <button type="button" class="btn btn-outline btn-block" onclick="LocationManager.requestLocation(); closeModal('location-modal');">
+          📡 Auto-Detect GPS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Accessibility Quick Modal (Strictly Isolated) -->
+  <div class="modal-backdrop" id="a11y-modal" role="dialog" aria-modal="true" aria-labelledby="a11y-modal-title">
+    <div class="modal-content">
+      <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border-color);">
+        <h2 class="card-title" id="a11y-modal-title">♿ Accessibility Settings</h2>
+        <button type="button" class="icon-btn" onclick="closeModal('a11y-modal')" aria-label="Close accessibility modal">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:0.65rem;">
+        <div class="setting-switch-row">
+          <div>
+            <div class="setting-title">Large Text Mode</div>
+            <div class="setting-desc">Upscales font sizes and touch targets (+20%)</div>
+          </div>
+          <label class="switch-toggle" for="toggle-large-text">
+            <input type="checkbox" id="toggle-large-text" onchange="Accessibility.toggle('largeText')">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div class="setting-switch-row">
+          <div>
+            <div class="setting-title">High Contrast Mode</div>
+            <div class="setting-desc">Stark black & white high-visibility theme</div>
+          </div>
+          <label class="switch-toggle" for="toggle-high-contrast">
+            <input type="checkbox" id="toggle-high-contrast" onchange="Accessibility.toggle('highContrast')">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div class="setting-switch-row">
+          <div>
+            <div class="setting-title">Daylight Shift (Light Theme)</div>
+            <div class="setting-desc">High visibility bright display mode</div>
+          </div>
+          <label class="switch-toggle" for="toggle-light-mode">
+            <input type="checkbox" id="toggle-light-mode" onchange="Accessibility.toggle('lightMode')">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div class="setting-switch-row">
+          <div>
+            <div class="setting-title">Voice Assistant</div>
+            <div class="setting-desc">Reads emergency alerts out loud</div>
+          </div>
+          <label class="switch-toggle" for="toggle-voice-assist">
+            <input type="checkbox" id="toggle-voice-assist" onchange="Accessibility.toggle('voiceAssist')">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div class="setting-switch-row">
+          <div>
+            <div class="setting-title">Reduce Motion</div>
+            <div class="setting-desc">Disables animations and rotating technical rings</div>
+          </div>
+          <label class="switch-toggle" for="toggle-reduce-motion">
+            <input type="checkbox" id="toggle-reduce-motion" onchange="Accessibility.toggle('reduceMotion')">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem;">
+        <button type="button" class="btn btn-primary btn-block" onclick="closeModal('a11y-modal')">Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Scripts -->
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/location.js' %}"></script>
+  <script src="{% static 'js/sos.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Settings & Accessibility – RESQ{% endblock %}
+
+{% block content %}
+<div class="page-centered-container">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div style="display:flex; align-items:center; gap:0.85rem;">
+      <a href="{% url 'dashboard' %}" class="icon-btn" aria-label="Back to Dashboard">←</a>
+      <div>
+        <h1 style="font-size:1.5rem; font-weight:900; color:var(--text-primary); letter-spacing:-0.02em;">
+          System Settings
+        </h1>
+        <p style="font-size:0.84rem; color:var(--text-muted); margin-top:2px;">
+          Accessibility, Display Themes, & Privacy Controls
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Accessibility Panel -->
+  <div class="card" style="padding:1.5rem; margin-bottom:1.25rem;">
+    <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.75rem;">
+      <h2 class="card-title" style="font-size:1.1rem;">♿ Accessibility & Visibility</h2>
+      <span class="badge badge-info">Active</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:1.15rem;">
+      
+      <!-- Large Text Switch -->
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">Large Text Mode</div>
+          <div class="setting-desc">Upscales font sizes, SOS controls, and touch targets (+20%)</div>
+        </div>
+        <label class="switch-toggle" for="set-large-text">
+          <input type="checkbox" id="set-large-text" onchange="Accessibility.toggle('largeText')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <!-- High Contrast Switch -->
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">High Contrast Mode</div>
+          <div class="setting-desc">Stark black and white theme with high-visibility borders</div>
+        </div>
+        <label class="switch-toggle" for="set-high-contrast">
+          <input type="checkbox" id="set-high-contrast" onchange="Accessibility.toggle('highContrast')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <!-- Voice Assistance Switch -->
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">Voice Assistance / Screen Reader</div>
+          <div class="setting-desc">Speaks response updates and emergency status prompts aloud</div>
+        </div>
+        <label class="switch-toggle" for="set-voice-assist">
+          <input type="checkbox" id="set-voice-assist" onchange="Accessibility.toggle('voiceAssist')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <!-- Reduced Motion Switch -->
+      <div class="setting-switch-row">
+        <div>
+          <div class="setting-title">Reduce Motion & Animations</div>
+          <div class="setting-desc">Disables rotating rings, pulse waves, and animated transitions</div>
+        </div>
+        <label class="switch-toggle" for="set-reduce-motion">
+          <input type="checkbox" id="set-reduce-motion" onchange="Accessibility.toggle('reduceMotion')">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. Appearance & Theme -->
+  <div class="card" style="padding:1.5rem; margin-bottom:1.25rem;">
+    <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.75rem;">
+      <h2 class="card-title" style="font-size:1.1rem;">🌓 Display Appearance</h2>
+    </div>
+
+    <div class="setting-switch-row">
+      <div>
+        <div class="setting-title">Daylight Shift (Light Theme)</div>
+        <div class="setting-desc">Switch between Tactical Dark Command and Crisp Light theme</div>
+      </div>
+      <label class="switch-toggle" for="set-light-mode">
+        <input type="checkbox" id="set-light-mode" onchange="Accessibility.toggle('lightMode')">
+        <span class="slider-toggle"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- 3. Location & Privacy -->
+  <div class="card" style="padding:1.5rem;">
+    <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.75rem;">
+      <h2 class="card-title" style="font-size:1.1rem;">🔒 Privacy & Geolocation</h2>
+    </div>
+
+    <div style="font-size:0.86rem; color:var(--text-secondary); line-height:1.5; margin-bottom:1rem;">
+      RESQ only captures geolocation when you trigger Emergency SOS or submit an incident report. Your location is transmitted directly to Campus Police and Emergency Response units.
+    </div>
+
+    <button type="button" class="btn btn-outline btn-block" onclick="LocationManager.requestLocation(); showToast('GPS coordinates calibrated.', 'success');">
+      📡 Calibrate High-Precision GPS
+    </button>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const s = Accessibility.state;
+    const tLarge = document.getElementById('set-large-text');
+    const tContrast = document.getElementById('set-high-contrast');
+    const tLight = document.getElementById('set-light-mode');
+    const tVoice = document.getElementById('set-voice-assist');
+    const tMotion = document.getElementById('set-reduce-motion');
+
+    if (tLarge) tLarge.checked = s.largeText;
+    if (tContrast) tContrast.checked = s.highContrast;
+    if (tLight) tLight.checked = s.lightMode;
+    if (tVoice) tVoice.checked = s.voiceAssist;
+    if (tMotion) tMotion.checked = s.reduceMotion;
+  });
+</script>
+{% endblock %}

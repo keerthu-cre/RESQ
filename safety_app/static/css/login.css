@@ -1,0 +1,546 @@
+/* ==========================================================================
+   RESQ — Emergency & Rapid Response
+   Dedicated Emergency Access & Login Experience Stylesheet
+   ========================================================================== */
+
+.resq-login-viewport {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - var(--header-height) - 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+.resq-login-split-card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(59, 130, 246, 0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Subtle Technical Ambient Grid */
+.resq-login-split-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 59, 48, 0.03) 0%, transparent 40%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================================================
+   LEFT SIDE: Emergency Visual & System Operations Panel (55%)
+   ========================================================================== */
+.resq-login-visual-panel {
+  padding: 3rem 2.75rem;
+  background: linear-gradient(145deg, #090e1c 0%, #0c1426 100%);
+  border-right: 1.5px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.login-visual-header {
+  margin-bottom: 2rem;
+}
+
+.login-brand-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 59, 48, 0.12);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--emergency-red);
+  margin-bottom: 1.25rem;
+}
+
+.login-headline {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.6rem;
+}
+
+.login-subheadline {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 440px;
+}
+
+/* Circular Radar & Emergency Response Network Visualization */
+.login-network-canvas {
+  position: relative;
+  width: 280px;
+  height: 240px;
+  margin: 1.5rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.network-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  pointer-events: none;
+}
+.network-radar-ring.r1 {
+  width: 140px;
+  height: 140px;
+  border-color: rgba(59, 130, 246, 0.25);
+  animation: radarPulseSlow 6s ease-in-out infinite;
+}
+.network-radar-ring.r2 {
+  width: 220px;
+  height: 220px;
+  border-style: dashed;
+  border-color: rgba(59, 130, 246, 0.15);
+  animation: radarOrbitSlow 40s linear infinite;
+}
+.network-radar-ring.r3 {
+  width: 270px;
+  height: 270px;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.network-center-hub {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1e3a8a 0%, #0f172a 100%);
+  border: 2px solid var(--nav-blue);
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.4), inset 0 0 12px rgba(59, 130, 246, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  text-align: center;
+  position: relative;
+}
+
+.network-center-hub .hub-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.network-center-hub .hub-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.network-satellite-node {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  letter-spacing: 0.04em;
+  transition: transform 0.3s;
+}
+
+.node-security {
+  top: 10px;
+  left: 20px;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.node-security .node-dot { background-color: var(--emergency-red); }
+
+.node-location {
+  bottom: 12px;
+  left: 15px;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+.node-location .node-dot { background-color: var(--nav-blue); }
+
+.node-response {
+  top: 45%;
+  right: 0;
+  transform: translateY(-50%);
+  border-color: rgba(25, 195, 125, 0.4);
+}
+.node-response .node-dot { background-color: var(--success-green); }
+
+.node-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+.node-dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.4;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* System Status Footer Grid */
+.login-status-indicators {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.status-indicator-box {
+  background: rgba(16, 24, 43, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.75rem;
+}
+
+.status-indicator-header {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2px;
+}
+
+.status-indicator-val {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--success-green);
+}
+
+/* ==========================================================================
+   RIGHT SIDE: Secure Login Experience Panel (45%)
+   ========================================================================== */
+.resq-login-form-panel {
+  padding: 3rem 2.5rem;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.login-form-header {
+  margin-bottom: 1.5rem;
+}
+
+.secure-access-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nav-blue);
+  background: var(--nav-blue-light);
+  border: 1px solid var(--nav-blue-border);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.6rem;
+}
+
+.login-form-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.login-form-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Custom Input Field with Embedded Icons */
+.input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-leading-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-icon-wrapper .form-input {
+  padding-left: 2.85rem;
+  padding-right: 2.85rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.85rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+.password-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Main Enter Button */
+.btn-enter-resq {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.4);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 0.9rem 1.5rem;
+  border-radius: var(--radius-md);
+  min-height: 52px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+.btn-enter-resq:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.55);
+}
+.btn-enter-resq:active {
+  transform: scale(0.98);
+}
+
+.btn-enter-resq.authenticating {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Demo Access Strip */
+.demo-access-strip {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.demo-title-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.demo-role-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.btn-demo-fill {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--nav-blue);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.4rem 0.85rem;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.btn-demo-fill:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--nav-blue);
+}
+
+/* Emergency Informational Strip */
+.emergency-info-strip {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 59, 48, 0.06);
+  border: 1px solid rgba(255, 59, 48, 0.25);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.emergency-info-title {
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--emergency-red);
+}
+.emergency-info-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  margin-top: 1px;
+}
+
+.btn-emergency-info {
+  background: transparent;
+  border: 1px solid rgba(255, 59, 48, 0.4);
+  color: var(--emergency-red);
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 0.4rem 0.8rem;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+.btn-emergency-info:hover {
+  background: rgba(255, 59, 48, 0.12);
+  border-color: var(--emergency-red);
+}
+
+/* Login Footer */
+.login-panel-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.login-panel-footer a {
+  font-weight: 800;
+  color: var(--nav-blue);
+}
+
+/* ==========================================================================
+   Keyframes & Animations
+   ========================================================================== */
+@keyframes radarPulseSlow {
+  0% { transform: scale(0.95); opacity: 0.3; }
+  50% { transform: scale(1.05); opacity: 0.6; }
+  100% { transform: scale(0.95); opacity: 0.3; }
+}
+
+@keyframes radarOrbitSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .network-radar-ring,
+  .node-dot::after {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 960px) {
+  .resq-login-split-card {
+    grid-template-columns: 1fr;
+  }
+  
+  .resq-login-visual-panel {
+    border-right: none;
+    border-bottom: 1.5px solid var(--border-color);
+    padding: 2.25rem 1.75rem;
+  }
+  
+  .login-headline {
+    font-size: 1.75rem;
+  }
+  
+  .resq-login-form-panel {
+    padding: 2.25rem 1.75rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .resq-login-viewport {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .login-status-indicators {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .demo-access-strip,
+  .emergency-info-strip {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+  
+  .btn-demo-fill,
+  .btn-emergency-info {
+    width: 100%;
+    margin-top: 0.4rem;
+  }
+}

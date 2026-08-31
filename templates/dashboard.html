@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emergency Command Center – RESQ{% endblock %}
+
+{% block content %}
+<div class="resq-command-layout">
+
+  <!-- =========================================================================
+       ZONE 1 (CENTER): OPEN EMERGENCY COMMAND ZONE
+       ========================================================================= -->
+  <section class="command-center-zone" aria-label="Emergency Command Area">
+    
+    <!-- 1. Safety Status Banner -->
+    <div class="command-status-header">
+      <span class="command-status-label">YOUR SAFETY STATUS</span>
+      <div class="command-protected-pill">
+        <span class="pulse-dot" style="background:var(--success-green);"></span>
+        <span>YOU'RE PROTECTED</span>
+      </div>
+      {% if profile.student_id %}
+        <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-top:2px;">
+          Student ID: <span style="color:var(--text-primary);">{{ profile.student_id }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 2. PHYSICAL EMERGENCY SOS ACTIVATION CONTROL -->
+    <div class="sos-command-stage">
+      
+      <!-- Slow Rotating Technical Outer Ring -->
+      <div class="sos-tech-orbit" id="sos-tech-orbit"></div>
+
+      <!-- Concentric Radar Waves -->
+      <div class="sos-radar-wave sos-radar-wave-1"></div>
+      <div class="sos-radar-wave sos-radar-wave-2"></div>
+
+      <!-- Thin SVG Circular Progress Ring -->
+      <svg class="sos-svg-orbit" viewBox="0 0 220 220" aria-hidden="true">
+        <circle class="sos-svg-track" cx="110" cy="110" r="104" />
+        <circle class="sos-svg-fill" id="sos-ring-progress" cx="110" cy="110" r="104" />
+      </svg>
+
+      <!-- 200px Emergency Activation Push Disc -->
+      <button 
+        type="button" 
+        id="sos-command-button" 
+        class="sos-command-disc"
+        role="button"
+        aria-label="Emergency SOS Button. Press and hold for 2 seconds to dispatch immediate emergency response."
+        data-speak="Emergency S.O.S. Button. Press and hold for two seconds to activate."
+      >
+        <span class="sos-disc-icon" aria-hidden="true">🚨</span>
+        <span class="sos-disc-text">SOS</span>
+        <span class="sos-disc-sub">EMERGENCY</span>
+      </button>
+
+    </div>
+
+    <!-- Live Instruction & Real-Time Countdown Line -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+      <div class="sos-instruction-line" id="sos-status-instruction">
+        PRESS & HOLD 2 SECONDS
+      </div>
+      <div class="sos-sub-tag">
+        Emergency assistance is available 24/7
+      </div>
+    </div>
+
+    <!-- 3. HORIZONTAL SAFETY DOCK / ACTION STRIP -->
+    <div class="safety-dock-strip">
+      <!-- 1. Report Incident -->
+      <a href="{% url 'incident_report' %}" class="dock-action-btn red" id="dock-report">
+        <span class="dock-action-icon">📝</span>
+        <span class="dock-action-label">REPORT</span>
+        <span class="dock-action-desc">Safety issue</span>
+      </a>
+
+      <!-- 2. Share Location -->
+      <button type="button" class="dock-action-btn cyan" id="dock-location" onclick="LocationManager.shareLocation();">
+        <span class="dock-action-icon">📍</span>
+        <span class="dock-action-label">LOCATION</span>
+        <span class="dock-action-desc">Share position</span>
+      </button>
+
+      <!-- 3. My Reports -->
+      <a href="{% url 'my_reports' %}" class="dock-action-btn amber" id="dock-reports">
+        <span class="dock-action-icon">📋</span>
+        <span class="dock-action-label">REPORTS</span>
+        <span class="dock-action-desc">Your history</span>
+      </a>
+
+      <!-- 4. Emergency Contacts -->
+      <a href="{% url 'contacts' %}" class="dock-action-btn green" id="dock-contacts">
+        <span class="dock-action-icon">☎️</span>
+        <span class="dock-action-label">CONTACTS</span>
+        <span class="dock-action-desc">Call for help</span>
+      </a>
+    </div>
+
+    <!-- 4. EMERGENCY SHORTCUT ADVISORY -->
+    <div class="emergency-shortcut-bar">
+      <span>💡</span>
+      <span><strong>CAN'T REACH THE SOS BUTTON?</strong> Press & Hold Spacebar or speed dial 911 / Campus Police below.</span>
+    </div>
+
+  </section>
+
+  <!-- =========================================================================
+       ZONE 3 (RIGHT): LIVE SAFETY INFORMATION RAIL
+       ========================================================================= -->
+  <aside class="safety-info-rail" aria-label="Live Safety Information Rail">
+    
+    <!-- 1. LIVE CAMPUS SAFETY RADAR WIDGET -->
+    <div class="safety-radar-widget">
+      <div class="radar-header-row">
+        <div style="font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted);">
+          📍 LIVE SAFETY RADAR
+        </div>
+        <span class="badge badge-success" style="font-size:0.65rem;" id="location-status-text">
+          <span class="pulse-dot"></span> GPS ACTIVE
+        </span>
+      </div>
+
+      <!-- Interactive Radar Screen with Scanner Beam -->
+      <div class="radar-screen-canvas">
+        <div class="radar-screen-grid"></div>
+        <div class="radar-sweep-scanner"></div>
+        
+        <!-- Center You Pin -->
+        <div class="radar-center-user" title="You (Current Position)"></div>
+
+        <!-- Surrounding Nearby Safety Points -->
+        <div class="radar-node-beacon sec" title="Security Patrol Active"></div>
+        <div class="radar-node-beacon med" title="Medical Unit On Standby"></div>
+        <div class="radar-node-beacon pat" title="Campus SafeRide Unit"></div>
+      </div>
+
+      <div style="font-size:0.95rem; font-weight:800; color:var(--text-primary); margin-bottom:0.4rem;" id="location-display-name">
+        Main Block • Ground Floor
+      </div>
+
+      <div class="radar-coords-mono">
+        <span id="location-display-coords">37.77490, -122.41940</span>
+        <button type="button" class="btn btn-outline" id="btn-edit-location" style="padding:0.25rem 0.6rem; min-height:30px; font-size:0.75rem; font-weight:800;">
+          UPDATE LOCATION
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. SAFETY SIGNAL PANEL -->
+    <div class="safety-signal-panel">
+      <div>
+        <div style="font-size:0.72rem; font-weight:800; text-transform:uppercase; color:var(--text-muted);">
+          SAFETY SIGNAL
+        </div>
+        <div style="font-size:0.85rem; font-weight:800; color:var(--success-green); margin-top:2px;">
+          🟢 CAMPUS STATUS: NORMAL
+        </div>
+      </div>
+      <div style="font-size:0.72rem; color:var(--text-muted); text-align:right;">
+        Response services available
+      </div>
+    </div>
+
+    <!-- 3. LIVE RESPONSE TRACKER / EMERGENCY ACTIVE OR ALL CLEAR -->
+    {% if active_incident %}
+    <!-- EMERGENCY ACTIVE MODE -->
+    <div class="response-timeline-card active-emergency" id="dashboard-active-incident">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+        <div style="font-size:0.9rem; font-weight:900; color:var(--emergency-red);">
+          🚨 EMERGENCY ACTIVE
+        </div>
+        <span class="badge badge-emergency" id="tracker-status-badge">
+          {{ active_incident.get_status_display }}
+        </span>
+      </div>
+
+      <div style="font-size:0.85rem; font-weight:800; color:var(--text-primary);">
+        {{ active_incident.get_incident_type_display }}
+      </div>
+      <div style="font-size:0.76rem; color:var(--text-muted); margin-top:2px;">
+        📍 {{ active_incident.location_name|truncatechars:32 }}
+      </div>
+
+      <!-- Control Room Timeline Stepper -->
+      <div class="timeline-v-stepper">
+        <div class="stepper-node-row completed" id="timeline-step-0">
+          <div class="stepper-bullet" id="step-node-0">✓</div>
+          <div class="stepper-label">SOS Submitted</div>
+        </div>
+
+        <div class="stepper-node-row {% if active_incident.status != 'PENDING' %}completed{% else %}current{% endif %}" id="timeline-step-1">
+          <div class="stepper-bullet" id="step-node-1">{% if active_incident.status != 'PENDING' %}✓{% else %}●{% endif %}</div>
+          <div class="stepper-label">Team Notified</div>
+        </div>
+
+        <div class="stepper-node-row {% if active_incident.status == 'ACCEPTED' %}current{% elif active_incident.status in 'ON_THE_WAY,ARRIVED,RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-2">
+          <div class="stepper-bullet" id="step-node-2">○</div>
+          <div class="stepper-label">Team Accepted</div>
+        </div>
+
+        <div class="stepper-node-row {% if active_incident.status == 'ON_THE_WAY' %}current{% elif active_incident.status in 'ARRIVED,RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-3">
+          <div class="stepper-bullet" id="step-node-3">○</div>
+          <div class="stepper-label">On The Way</div>
+        </div>
+
+        <div class="stepper-node-row {% if active_incident.status == 'ARRIVED' %}current{% elif active_incident.status == 'RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-4">
+          <div class="stepper-bullet" id="step-node-4">○</div>
+          <div class="stepper-label">Arrived</div>
+        </div>
+
+        <div class="stepper-node-row {% if active_incident.status == 'RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-5">
+          <div class="stepper-bullet" id="step-node-5">○</div>
+          <div class="stepper-label">Resolved</div>
+        </div>
+      </div>
+
+      <!-- "I'M SAFE" Resolution Trigger -->
+      <button type="button" class="btn btn-success btn-block" id="btn-im-safe-trigger" style="min-height:42px; font-size:0.95rem; font-weight:900;">
+        ✓ I'M SAFE
+      </button>
+
+      <div style="text-align:center; margin-top:0.4rem;">
+        <a href="{% url 'incident_detail' pk=active_incident.id %}" style="font-size:0.76rem; font-weight:800;">
+          Open Live Tracker →
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <!-- ALL CLEAR STATE -->
+    <div class="response-timeline-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+        <div style="font-size:0.88rem; font-weight:900; color:var(--success-green); display:flex; align-items:center; gap:0.4rem;">
+          <span class="pulse-dot"></span> 🟢 ALL CLEAR
+        </div>
+        <span class="badge badge-success" style="font-size:0.65rem;">Standby</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+        No active emergency. Rapid response units and medical teams are available.
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- 4. RECENT ACTIVITY STREAM (COMPACT) -->
+    <div class="card" style="padding:1rem;">
+      <div class="card-header" style="margin-bottom:0.6rem; padding-bottom:0.4rem; border-bottom:1px solid var(--border-subtle);">
+        <h3 class="card-title" style="font-size:0.85rem;">🕒 Recent Activity</h3>
+        <a href="{% url 'my_reports' %}" style="font-size:0.75rem; font-weight:800;">View History →</a>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:0.45rem;">
+        {% if recent_reports %}
+          {% for rep in recent_reports %}
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0.45rem 0.6rem; background:var(--bg-subtle); border-radius:var(--radius-xs);">
+              <div style="min-width:0; flex:1;">
+                <div style="font-weight:800; font-size:0.82rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  {{ rep.get_incident_type_display }}
+                </div>
+                <div style="font-size:0.7rem; color:var(--text-muted);">
+                  {{ rep.location_name|truncatechars:20 }} • {{ rep.created_at|date:"M d, H:i" }}
+                </div>
+              </div>
+              <span class="badge {% if rep.status == 'RESOLVED' %}badge-success{% else %}badge-warning{% endif %}" style="font-size:0.62rem; margin-left:6px;">
+                {{ rep.get_status_display }}
+              </span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div style="font-size:0.78rem; color:var(--text-muted); padding:0.35rem 0;">
+            No recent activity logged.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 5. TRUSTED CONTACTS STRIP -->
+    <div class="card" style="padding:1rem;">
+      <div class="card-header" style="margin-bottom:0.6rem; padding-bottom:0.4rem; border-bottom:1px solid var(--border-subtle);">
+        <h3 class="card-title" style="font-size:0.85rem;">☎️ Trusted Contacts</h3>
+        <a href="{% url 'contacts' %}" style="font-size:0.75rem; font-weight:800;">All →</a>
+      </div>
+
+      <div class="trusted-contacts-strip">
+        {% for hotline in campus_hotlines|slice:":3" %}
+          <div class="trusted-contact-pill">
+            <div style="min-width:0; flex:1;">
+              <div style="font-weight:800; font-size:0.82rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                {{ hotline.name }}
+              </div>
+              <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
+                {{ hotline.phone_number }}
+              </div>
+            </div>
+            <a href="tel:{{ hotline.phone_number }}" class="btn btn-outline" style="padding:0.25rem 0.65rem; min-height:30px; font-size:0.75rem;" aria-label="Call {{ hotline.name }}">
+              📞 Call
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
+<!-- =========================================================================
+     FULL-SCREEN SOS ACTIVATION MODAL
+     ========================================================================= -->
+<div class="modal-backdrop" id="sos-activation-overlay" role="dialog" aria-modal="true" aria-labelledby="sos-act-title">
+  <div class="modal-content" style="text-align:center; border:2.5px solid var(--emergency-red); box-shadow: 0 0 60px rgba(255, 59, 48, 0.6);">
+    <div style="font-size:3rem; margin-bottom:0.6rem;">🚨</div>
+    <h2 style="font-size:1.8rem; font-weight:900; color:var(--emergency-red); letter-spacing:-0.02em; margin-bottom:0.25rem;" id="sos-act-title">
+      EMERGENCY ACTIVE
+    </h2>
+    <div style="font-size:1rem; font-weight:800; color:var(--text-primary); margin-bottom:1.25rem;">
+      Help is being arranged.
+    </div>
+
+    <div style="background:var(--bg-subtle); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; text-align:left; margin-bottom:1.5rem; display:flex; flex-direction:column; gap:0.6rem;">
+      <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; font-size:0.9rem; color:var(--text-primary);">
+        <span style="color:var(--success-green);">✓</span> SOS REQUEST SENT
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; font-size:0.9rem; color:var(--text-primary);">
+        <span style="color:var(--success-green);">✓</span> LOCATION SHARED
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; font-size:0.9rem; color:var(--text-primary);">
+        <span style="color:var(--success-green);">✓</span> RESPONSE TEAM NOTIFIED
+      </div>
+    </div>
+
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.35rem;">
+        CURRENT RESPONSE
+      </div>
+      <span class="badge badge-warning" style="font-size:0.85rem; padding:0.45rem 1rem;">
+        <span class="pulse-dot"></span> WAITING FOR RESPONSE
+      </span>
+    </div>
+
+    <button type="button" class="btn btn-emergency btn-block btn-lg" onclick="window.location.reload();">
+      TRACK RESPONSE NOW →
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if active_incident %}
+<script src="{% static 'js/tracker.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    TrackerEngine.init({{ active_incident.id }});
+  });
+</script>
+{% endif %}
+{% endblock %}

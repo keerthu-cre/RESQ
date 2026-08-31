@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emergency Access – RESQ Emergency & Rapid Response{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="resq-login-viewport">
+  <div class="resq-login-split-card">
+
+    <!-- =========================================================================
+         LEFT 55%: RESQ IDENTITY & EMERGENCY RESPONSE NETWORK VISUALIZATION
+         ========================================================================= -->
+    <div class="resq-login-visual-panel">
+      
+      <!-- Top Branding & Headline -->
+      <div class="login-visual-header">
+        <div class="login-brand-tag">
+          <span>⚡</span>
+          <span>RESQ — EMERGENCY & RAPID RESPONSE</span>
+        </div>
+
+        <h1 class="login-headline">
+          Help is closer than you think.
+        </h1>
+
+        <p class="login-subheadline">
+          Secure access to your campus emergency network, live GPS location dispatch, and rapid responder units.
+        </p>
+      </div>
+
+      <!-- Animated Circular Emergency Response Network Visualization -->
+      <div class="login-network-canvas" aria-hidden="true">
+        <div class="network-radar-ring r1"></div>
+        <div class="network-radar-ring r2"></div>
+        <div class="network-radar-ring r3"></div>
+
+        <!-- Center Hub -->
+        <div class="network-center-hub">
+          <span class="hub-icon">⚡</span>
+          <span class="hub-label">RESQ<br>NETWORK</span>
+        </div>
+
+        <!-- Satellite Network Nodes -->
+        <div class="network-satellite-node node-security">
+          <span class="node-dot"></span>
+          <span>SECURITY</span>
+        </div>
+
+        <div class="network-satellite-node node-location">
+          <span class="node-dot"></span>
+          <span>LOCATION</span>
+        </div>
+
+        <div class="network-satellite-node node-response">
+          <span class="node-dot"></span>
+          <span>RESPONSE</span>
+        </div>
+      </div>
+
+      <!-- Live System Status Indicators (3 Compact Pillars) -->
+      <div class="login-status-indicators">
+        <div class="status-indicator-box">
+          <div class="status-indicator-header">
+            <span class="pulse-dot" style="background:var(--success-green); width:6px; height:6px;"></span>
+            <span>RESPONSE NETWORK</span>
+          </div>
+          <div class="status-indicator-val">ONLINE</div>
+        </div>
+
+        <div class="status-indicator-box">
+          <div class="status-indicator-header">
+            <span class="pulse-dot" style="background:var(--success-green); width:6px; height:6px;"></span>
+            <span>LOCATION SERVICES</span>
+          </div>
+          <div class="status-indicator-val">READY</div>
+        </div>
+
+        <div class="status-indicator-box">
+          <div class="status-indicator-header">
+            <span class="pulse-dot" style="background:var(--success-green); width:6px; height:6px;"></span>
+            <span>EMERGENCY DISPATCH</span>
+          </div>
+          <div class="status-indicator-val">ACTIVE</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =========================================================================
+         RIGHT 45%: SECURE LOGIN EXPERIENCE PANEL
+         ========================================================================= -->
+    <div class="resq-login-form-panel">
+      
+      <!-- Panel Header -->
+      <div class="login-form-header">
+        <div class="secure-access-badge">
+          <span>🛡️</span>
+          <span>SECURE ACCESS</span>
+        </div>
+        <h2 class="login-form-title">Welcome back.</h2>
+        <p class="login-form-subtitle">Sign in to access your RESQ safety dashboard.</p>
+      </div>
+
+      <!-- Login Form -->
+      <form method="post" action="{% url 'login' %}" id="resq-auth-form">
+        {% csrf_token %}
+
+        <!-- Username / Student ID -->
+        <div class="form-group">
+          <label class="form-label" for="username">STUDENT ID / USERNAME</label>
+          <div class="input-icon-wrapper">
+            <span class="input-leading-icon" aria-hidden="true">👤</span>
+            <input 
+              type="text" 
+              name="username" 
+              id="username" 
+              class="form-input" 
+              required 
+              placeholder="Enter your student ID" 
+              autocomplete="username"
+              value="{{ request.POST.username|default:'' }}"
+            >
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="password">PASSWORD</label>
+          <div class="input-icon-wrapper">
+            <span class="input-leading-icon" aria-hidden="true">🔒</span>
+            <input 
+              type="password" 
+              name="password" 
+              id="password" 
+              class="form-input" 
+              required 
+              placeholder="Enter your password" 
+              autocomplete="current-password"
+            >
+            <button type="button" class="password-toggle-btn" id="btn-toggle-pw" aria-label="Toggle password visibility" title="Show/Hide Password">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-enter-resq btn-block" id="btn-submit-login">
+          <span id="btn-login-label">ENTER RESQ →</span>
+        </button>
+      </form>
+
+      <!-- Demo Access Strip -->
+      <div class="demo-access-strip">
+        <div>
+          <div class="demo-title-tag">DEMO ACCESS</div>
+          <div class="demo-role-name">Student Demo</div>
+        </div>
+        <button type="button" class="btn-demo-fill" id="btn-fill-student" title="Auto-fill student demo credentials">
+          USE STUDENT DEMO
+        </button>
+      </div>
+
+      <!-- Emergency Assistance Informational Strip -->
+      <div class="emergency-info-strip">
+        <div>
+          <div class="emergency-info-title">NEED ASSISTANCE?</div>
+          <div class="emergency-info-desc">Use RESQ emergency services when you need immediate help.</div>
+        </div>
+        <button type="button" class="btn-emergency-info" onclick="document.getElementById('emergency-info-modal').classList.add('active');">
+          EMERGENCY INFO →
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="login-panel-footer">
+        <div>🔒 Secure RESQ Access • 24/7 Network</div>
+        <a href="{% url 'register' %}">Register as Student</a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================================
+     EMERGENCY INFORMATION MODAL (Informational Assistance)
+     ========================================================================= -->
+<div class="modal-backdrop" id="emergency-info-modal" role="dialog" aria-modal="true" aria-labelledby="emerg-info-title">
+  <div class="modal-content">
+    <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border-color);">
+      <h2 class="card-title" id="emerg-info-title" style="color:var(--emergency-red);">
+        🚨 Immediate Emergency Assistance
+      </h2>
+      <button type="button" class="icon-btn" onclick="closeModal('emergency-info-modal')" aria-label="Close modal">✕</button>
+    </div>
+
+    <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.45; margin-bottom:1.25rem;">
+      If you are in immediate physical danger, experiencing a medical crisis, or witnessing an active threat, contact emergency dispatchers directly:
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:0.65rem; margin-bottom:1.25rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+        <div>
+          <div style="font-weight:900; color:var(--text-primary);">Campus Police & Emergency 911</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">24/7 Direct Dispatch Hotline</div>
+        </div>
+        <a href="tel:911" class="btn btn-emergency" style="min-height:36px; padding:0.4rem 0.9rem; font-size:0.82rem;">📞 CALL 911</a>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+        <div>
+          <div style="font-weight:900; color:var(--text-primary);">Campus Health Center EMT</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">Medical First Responder Desk</div>
+        </div>
+        <a href="tel:5550199" class="btn btn-outline" style="min-height:36px; padding:0.4rem 0.9rem; font-size:0.82rem; color:var(--nav-blue);">📞 Call EMT</a>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-outline btn-block" onclick="closeModal('emergency-info-modal')">
+      Close Information
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Password Visibility Toggle
+    const pwInput = document.getElementById('password');
+    const pwToggleBtn = document.getElementById('btn-toggle-pw');
+    if (pwToggleBtn && pwInput) {
+      pwToggleBtn.addEventListener('click', () => {
+        const isPassword = pwInput.getAttribute('type') === 'password';
+        pwInput.setAttribute('type', isPassword ? 'text' : 'password');
+        pwToggleBtn.textContent = isPassword ? '🙈' : '👁️';
+      });
+    }
+
+    // 2. Demo Student Access Auto-Fill (Without exposing raw password text)
+    const demoBtn = document.getElementById('btn-fill-student');
+    const userField = document.getElementById('username');
+    if (demoBtn && userField && pwInput) {
+      demoBtn.addEventListener('click', () => {
+        userField.value = 'alex.student';
+        pwInput.value = 'safecampus123';
+        if (typeof SoundFX !== 'undefined' && SoundFX.playBeep) {
+          SoundFX.playBeep(520, 0.08);
+        }
+        if (typeof showToast !== 'undefined') {
+          showToast('✓ Student demo credentials loaded.', 'info', 2000);
+        }
+      });
+    }
+
+    // 3. Form Submit Feedback
+    const authForm = document.getElementById('resq-auth-form');
+    const submitBtn = document.getElementById('btn-submit-login');
+    const submitLabel = document.getElementById('btn-login-label');
+    if (authForm && submitBtn && submitLabel) {
+      authForm.addEventListener('submit', () => {
+        submitBtn.classList.add('authenticating');
+        submitLabel.innerHTML = 'AUTHENTICATING...';
+      });
+    }
+  });
+</script>
+{% endblock %}

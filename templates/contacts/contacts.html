@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emergency Contacts – RESQ Emergency & Rapid Response{% endblock %}
+
+{% block content %}
+<div class="page-centered-container">
+
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+      <h1 style="font-size:1.6rem; font-weight:900; color:var(--text-primary); letter-spacing:-0.03em;">
+        EMERGENCY CONTACTS
+      </h1>
+      <p style="font-size:0.86rem; color:var(--text-muted); margin-top:2px;">
+        Speed-dial campus dispatch & personal In-Case-of-Emergency (ICE) numbers
+      </p>
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="document.getElementById('add-contact-modal').classList.add('active');" style="min-height:38px; padding:0.4rem 0.95rem; font-size:0.82rem;">
+      + Add Contact
+    </button>
+  </div>
+
+  <!-- 1. Official 24/7 Campus Hotlines -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">🚨 Campus Emergency Hotlines</h2>
+      <span class="badge badge-emergency">24/7 ACTIVE</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:0.6rem;">
+      {% for hotline in campus_hotlines %}
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+          <div style="min-width:0; flex:1;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span style="font-weight:900; font-size:0.95rem; color:var(--text-primary);">
+                {{ hotline.name }}
+              </span>
+              <span class="badge badge-info" style="font-size:0.62rem;">Official</span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:1px;">{{ hotline.relationship }}</div>
+            <div style="font-family:var(--font-mono); font-size:0.85rem; color:var(--nav-blue); font-weight:700; margin-top:2px;">
+              {{ hotline.phone_number }}
+            </div>
+          </div>
+          <a href="tel:{{ hotline.phone_number }}" class="btn btn-emergency" style="padding:0.45rem 1rem; min-height:38px; font-size:0.82rem;" aria-label="Direct dial {{ hotline.name }}">
+            📞 CALL
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 2. Personal Emergency (ICE) Contacts -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">👥 My Personal ICE Contacts</h2>
+      <span class="badge badge-gray">{{ user_contacts.count }} Saved</span>
+    </div>
+
+    {% if user_contacts %}
+      <div style="display:flex; flex-direction:column; gap:0.6rem;">
+        {% for c in user_contacts %}
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--bg-subtle); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <div style="min-width:0; flex:1;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-weight:900; font-size:0.95rem; color:var(--text-primary);">
+                  {{ c.name }}
+                </span>
+                {% if c.is_primary %}
+                  <span class="badge badge-success" style="font-size:0.62rem;">Primary ICE</span>
+                {% endif %}
+              </div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:1px;">{{ c.relationship }}</div>
+              <div style="font-family:var(--font-mono); font-size:0.85rem; color:var(--text-secondary); margin-top:2px;">
+                {{ c.phone_number }}
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.4rem;">
+              <a href="tel:{{ c.phone_number }}" class="btn btn-primary" style="padding:0.4rem 0.85rem; min-height:36px; font-size:0.8rem;" aria-label="Call {{ c.name }}">
+                📞 Call
+              </a>
+              <form method="post" action="{% url 'delete_contact' pk=c.id %}" onsubmit="return confirm('Delete contact {{ c.name }}?');" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline" style="padding:0.4rem 0.65rem; min-height:36px; color:var(--emergency-red); border-color:transparent;" title="Delete Contact">
+                  🗑️
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align:center; padding:2.5rem 1rem;">
+        <div style="font-size:2.2rem; margin-bottom:0.5rem;">👥</div>
+        <div style="font-weight:800; color:var(--text-primary); font-size:1.05rem;">No Personal ICE Contacts Added Yet</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin:0.35rem 0 1.25rem;">
+          Add family members, roommates, or trusted friends for instant speed-dialing during an emergency.
+        </p>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('add-contact-modal').classList.add('active');">
+          + Add First ICE Contact
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Add Contact Modal (Strictly Contained) -->
+  <div class="modal-backdrop" id="add-contact-modal" role="dialog" aria-modal="true" aria-labelledby="add-c-title">
+    <div class="modal-content">
+      <div class="card-header" style="margin-bottom:1rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border-color);">
+        <h2 class="card-title" id="add-c-title">➕ Add Emergency Contact</h2>
+        <button type="button" class="icon-btn" onclick="closeModal('add-contact-modal')" aria-label="Close modal">✕</button>
+      </div>
+
+      <form method="post" action="{% url 'add_contact' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label" for="id_name">Contact Name</label>
+          {{ form.name }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_relationship">Relationship</label>
+          {{ form.relationship }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_phone_number">Phone Number</label>
+          {{ form.phone_number }}
+        </div>
+
+        <div class="setting-switch-row" style="margin:0.5rem 0 1rem;">
+          <div>
+            <div class="setting-title">Primary ICE Contact</div>
+            <div class="setting-desc">Highlighted as first point of contact during emergency dispatch</div>
+          </div>
+          <label class="switch-toggle" for="id_is_primary">
+            {{ form.is_primary }}
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('add-contact-modal')" style="flex:1;">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" style="flex:1;">
+            Save Contact
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

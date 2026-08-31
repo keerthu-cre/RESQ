@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Response Tracking #{{ incident.id }} – RESQ Emergency & Rapid Response{% endblock %}
+
+{% block content %}
+<div class="page-centered-container">
+
+  <!-- Header Navigation -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <a href="{% url 'my_reports' %}" class="btn btn-outline" style="min-height:36px; padding:0.35rem 0.75rem; font-size:0.82rem;" aria-label="Back to Reports">
+        ← Reports
+      </a>
+      <div>
+        <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">
+          RESQ RESPONSE TRACKING • INCIDENT #{{ incident.id }}
+        </div>
+        <h1 style="font-size:1.5rem; font-weight:900; color:var(--text-primary); letter-spacing:-0.02em;">
+          {{ incident.get_incident_type_display }}
+        </h1>
+      </div>
+    </div>
+
+    <span class="badge {% if incident.status == 'RESOLVED' %}badge-success{% else %}badge-emergency{% endif %}" id="tracker-status-badge">
+      {% if incident.is_active %}<span class="pulse-dot"></span>{% endif %}
+      {{ incident.get_status_display }}
+    </span>
+  </div>
+
+  <!-- Main Progress Stepper Card -->
+  <div class="card" style="border-color: {% if incident.is_active %}var(--emergency-red){% else %}var(--border-color){% endif %}; margin-bottom:1.25rem;">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>🚨 Dispatch & Live Response Status</span>
+      </h2>
+      <div style="font-size:0.78rem; color:var(--text-muted); display:flex; align-items:center; gap:0.35rem;">
+        <span class="pulse-dot" style="background:var(--success-green);"></span> Auto-updating live
+      </div>
+    </div>
+
+    <!-- Stepper Progress Tracker -->
+    <div class="status-tracker-box" style="margin-bottom:1rem;">
+      <div class="status-timeline">
+        
+        <div class="timeline-step completed" id="timeline-step-0">
+          <div class="step-node" id="step-node-0">✓</div>
+          <div class="step-content">
+            <div class="step-title">SOS Submitted</div>
+            <div class="step-meta">Beacon registered at {{ incident.created_at|date:"H:i:s" }}</div>
+          </div>
+        </div>
+
+        <div class="timeline-step {% if incident.status != 'PENDING' %}completed{% else %}current{% endif %}" id="timeline-step-1">
+          <div class="step-node" id="step-node-1">{% if incident.status != 'PENDING' %}✓{% else %}●{% endif %}</div>
+          <div class="step-content">
+            <div class="step-title">Response Team Notified</div>
+            <div class="step-meta">Alert dispatched to Campus Police & Rapid Units</div>
+          </div>
+        </div>
+
+        <div class="timeline-step {% if incident.status == 'ACCEPTED' %}current{% elif incident.status in 'ON_THE_WAY,ARRIVED,RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-2">
+          <div class="step-node" id="step-node-2">○</div>
+          <div class="step-content">
+            <div class="step-title">Team Accepted</div>
+            <div class="step-meta" id="step-meta-2">Responder assigned and reviewing location</div>
+          </div>
+        </div>
+
+        <div class="timeline-step {% if incident.status == 'ON_THE_WAY' %}current{% elif incident.status in 'ARRIVED,RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-3">
+          <div class="step-node" id="step-node-3">○</div>
+          <div class="step-content">
+            <div class="step-title">Team On The Way</div>
+            <div class="step-meta" id="step-meta-3">En route with emergency vehicle priority</div>
+          </div>
+        </div>
+
+        <div class="timeline-step {% if incident.status == 'ARRIVED' %}current{% elif incident.status == 'RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-4">
+          <div class="step-node" id="step-node-4">○</div>
+          <div class="step-content">
+            <div class="step-title">Team Arrived</div>
+            <div class="step-meta">Responders on scene</div>
+          </div>
+        </div>
+
+        <div class="timeline-step {% if incident.status == 'RESOLVED' %}completed{% else %}pending{% endif %}" id="timeline-step-5">
+          <div class="step-node" id="step-node-5">○</div>
+          <div class="step-content">
+            <div class="step-title">Resolved</div>
+            <div class="step-meta">Emergency safely concluded</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Responder Status Details Box -->
+      <div style="display:flex; gap:1rem; padding:1rem; background:var(--bg-subtle); border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-top:1rem;">
+        <div style="font-size:1.8rem; line-height:1;">🚓</div>
+        <div style="flex:1;">
+          <div style="font-size:0.95rem; font-weight:800; color:var(--text-primary);" id="responder-name">
+            {{ incident.response_team_name|default:"Campus Rapid Response Team" }}
+          </div>
+          <div style="font-size:0.85rem; font-weight:800; color:var(--nav-blue); margin-top:2px;" id="responder-eta">
+            {% if incident.status == 'ARRIVED' %}
+              🟢 <span style="color:var(--success-green);">Responders On Scene</span>
+            {% elif incident.status == 'RESOLVED' %}
+              ✅ <span style="color:var(--success-green);">Resolved & Secured</span>
+            {% elif incident.eta_minutes %}
+              Estimated Arrival: ~{{ incident.eta_minutes }} mins
+            {% else %}
+              Coordinating dispatch...
+            {% endif %}
+          </div>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;" id="responder-notes">
+            {{ incident.responder_notes|default:"Dispatch is active. Keep your device accessible." }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- "I'M SAFE" Action Area -->
+    <div id="safe-action-banner" {% if incident.status == 'RESOLVED' %}style="display:none;"{% endif %} style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-subtle); text-align:center;">
+      <div style="font-size:0.88rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.6rem;">
+        Are you safe or has assistance arrived?
+      </div>
+      <button type="button" class="btn btn-success btn-block btn-lg" id="btn-im-safe-trigger" style="font-size:1rem; font-weight:900;">
+        ✓ I'M SAFE
+      </button>
+      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">
+        Clicking notifies response dispatch that you are secure.
+      </div>
+    </div>
+
+    <!-- Resolved Confirmation Card -->
+    <div id="resolved-confirmation-card" style="{% if incident.status != 'RESOLVED' %}display:none;{% endif %} background:var(--success-green-light); border:1.5px solid var(--success-green-border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; margin-top:1rem;">
+      <div style="font-size:2rem; margin-bottom:0.25rem;">✅</div>
+      <div style="font-weight:900; font-size:1.15rem; color:var(--success-green);">EMERGENCY RESOLVED</div>
+      <div style="font-size:0.86rem; color:var(--text-primary); margin-top:0.25rem;">
+        Your response request has been completed. Glad you're safe.
+      </div>
+      <div style="margin-top:1rem;">
+        <button type="button" class="btn btn-outline" onclick="showToast('✓ Glad you\'re safe!', 'success');" style="font-size:0.85rem; padding:0.4rem 1rem;">
+          ✓ I'M SAFE
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Incident Details & Geolocation Info -->
+  <div class="card" style="margin-bottom:1.25rem;">
+    <div class="card-header">
+      <h2 class="card-title">📌 Location & Incident Details</h2>
+      <span class="badge badge-{{ incident.urgency|lower }}">
+        {{ incident.get_urgency_display }}
+      </span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
+      <div>
+        <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Reported Location</span>
+        <div style="font-weight:800; color:var(--text-primary); margin-top:2px;">
+          📍 {{ incident.location_name }}
+        </div>
+        {% if incident.latitude and incident.longitude %}
+          <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--nav-blue); margin-top:2px;">
+            GPS Coordinates: {{ incident.latitude|floatformat:5 }}, {{ incident.longitude|floatformat:5 }}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if incident.description %}
+        <div>
+          <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Situation Description</span>
+          <div style="background:var(--bg-subtle); padding:0.75rem 1rem; border-radius:var(--radius-sm); margin-top:3px; font-size:0.88rem; color:var(--text-secondary); line-height:1.45; border:1px solid var(--border-subtle);">
+            {{ incident.description }}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if incident.image %}
+        <div>
+          <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted);">Attached Image</span>
+          <div style="margin-top:4px;">
+            <img src="{{ incident.image.url }}" alt="Incident attachment" style="max-height:220px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Chronological Audit Log History -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">📜 Dispatch Timeline Logs</h2>
+    </div>
+    
+    <div id="incident-logs-list">
+      {% for log in logs %}
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:0.6rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.85rem;">
+          <div>
+            <span style="font-weight:800; color:var(--text-primary);">{{ log.get_status_display }}</span>
+            <span style="color:var(--text-muted); font-size:0.75rem;"> • {{ log.updated_by }}</span>
+            <div style="color:var(--text-secondary); margin-top:2px;">{{ log.note }}</div>
+          </div>
+          <span style="font-family:var(--font-mono); color:var(--text-muted); font-size:0.75rem; white-space:nowrap; margin-left:8px;">
+            {{ log.created_at|date:"H:i:s" }}
+          </span>
+        </div>
+      {% empty %}
+        <div style="color:var(--text-muted); font-size:0.85rem;">No log events yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/tracker.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    TrackerEngine.init({{ incident.id }});
+  });
+</script>
+{% endblock %}
