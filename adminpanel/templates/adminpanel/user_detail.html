@@ -1,0 +1,122 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}User: {{ user_obj.username }} — RESQ{% endblock %}
+{% block page_heading %}User Profile: {{ user_obj.username }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold text-dark mb-0">{{ user_obj.username }}</h4>
+      <small class="text-muted">Account Registered: {{ user_obj.date_joined|date:"F d, Y" }}</small>
+    </div>
+    <a href="{% url 'admin_users' %}" class="btn btn-outline-secondary">
+      <i class="fa-solid fa-arrow-left me-1"></i> Back to Users
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Edit Form Column -->
+    <div class="col-12 col-lg-5">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-user-pen text-primary me-2"></i>Account Details</h6>
+        </div>
+        <div class="card-body p-4">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Username</label>
+              {{ form.username }}
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">First Name</label>
+                {{ form.first_name }}
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Last Name</label>
+                {{ form.last_name }}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Email</label>
+              {{ form.email }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Phone Contact</label>
+              {{ form.phone }}
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Role</label>
+                {{ form.role }}
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Status</label>
+                {{ form.status }}
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-semibold">Reset Password (optional)</label>
+              {{ form.new_password }}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fa-solid fa-save me-1"></i> Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reported Incidents History -->
+    <div class="col-12 col-lg-7">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Reported Emergency Incidents ({{ user_incidents.count }})
+          </h6>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-secondary">
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inc in user_incidents %}
+              <tr>
+                <td class="fw-bold text-primary">#{{ inc.id }}</td>
+                <td><span class="badge badge-type-{{ inc.incident_type }}">{{ inc.get_incident_type_display }}</span></td>
+                <td><div class="small fw-semibold text-truncate" style="max-width: 200px;">{{ inc.address }}</div></td>
+                <td><span class="badge badge-{{ inc.status }}">{{ inc.get_status_display }}</span></td>
+                <td><small class="text-muted">{{ inc.created_at|date:"M d, H:i" }}</small></td>
+                <td class="text-end">
+                  <a href="{% url 'admin_incident_detail' inc.id %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted small">
+                  No reported emergencies from this user.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

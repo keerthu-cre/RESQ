@@ -1,0 +1,106 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Team: {{ team.name }} — RESQ{% endblock %}
+{% block page_heading %}Response Team: {{ team.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="fw-bold text-dark mb-0">{{ team.name }}</h4>
+      <small class="text-muted">Zone: {{ team.zone }} | Responder: {{ team.user.username }}</small>
+    </div>
+    <a href="{% url 'admin_teams' %}" class="btn btn-outline-secondary">
+      <i class="fa-solid fa-arrow-left me-1"></i> Back to Teams
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Edit Form Column -->
+    <div class="col-12 col-lg-5">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-gear text-primary me-2"></i>Configure Response Unit</h6>
+        </div>
+        <div class="card-body p-4">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Team Name</label>
+              {{ form.name }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Responder Account</label>
+              {{ form.user }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Assigned Campus Zone</label>
+              {{ form.zone }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Duty Availability Status</label>
+              {{ form.availability_status }}
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-semibold">Incident Types Handled (comma-separated)</label>
+              {{ form.incident_types_text }}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fa-solid fa-save me-1"></i> Update Team Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assigned Incidents History -->
+    <div class="col-12 col-lg-7">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-truck-medical text-primary me-2"></i>Dispatch History ({{ assigned_incidents.count }})
+          </h6>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-secondary">
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inc in assigned_incidents %}
+              <tr>
+                <td class="fw-bold text-primary">#{{ inc.id }}</td>
+                <td><span class="badge badge-type-{{ inc.incident_type }}">{{ inc.get_incident_type_display }}</span></td>
+                <td><div class="small fw-semibold text-truncate" style="max-width: 200px;">{{ inc.address }}</div></td>
+                <td><span class="badge badge-{{ inc.status }}">{{ inc.get_status_display }}</span></td>
+                <td><small class="text-muted">{{ inc.created_at|date:"M d, H:i" }}</small></td>
+                <td class="text-end">
+                  <a href="{% url 'admin_incident_detail' inc.id %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted small">
+                  No incidents assigned to this unit yet.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

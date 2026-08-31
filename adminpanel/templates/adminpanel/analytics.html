@@ -1,0 +1,270 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Emergency Analytics & Insights — RESQ{% endblock %}
+{% block page_heading %}Campus Emergency Analytics & Insights{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Action Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h5 class="fw-bold text-dark mb-0">System Performance Metrics</h5>
+      <small class="text-muted">Real-time dynamic aggregation from REST API</small>
+    </div>
+    <a href="{% url 'admin_export_csv' %}" class="btn btn-success shadow-sm">
+      <i class="fa-solid fa-file-csv me-1"></i> Export Incident Report (CSV)
+    </a>
+  </div>
+
+  <!-- Summary Metric Counters -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3 text-center">
+        <span class="text-muted small text-uppercase fw-semibold">Total Incidents</span>
+        <h3 class="fw-bold text-dark mt-1 mb-0" id="stat-total-incidents">...</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3 text-center border-danger border-opacity-50">
+        <span class="text-danger small text-uppercase fw-semibold">Pending Emergencies</span>
+        <h3 class="fw-bold text-danger mt-1 mb-0" id="stat-pending-incidents">...</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3 text-center">
+        <span class="text-muted small text-uppercase fw-semibold">Active Units</span>
+        <h3 class="fw-bold text-dark mt-1 mb-0" id="stat-active-teams">...</h3>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3 text-center">
+        <span class="text-muted small text-uppercase fw-semibold">Avg Response Time</span>
+        <h3 class="fw-bold text-primary mt-1 mb-0"><span id="stat-avg-response">...</span> <small class="fs-6 text-muted">mins</small></h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="row g-4 mb-4">
+    <!-- 30 Day Trend Line Chart -->
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-chart-line text-primary me-2"></i>Emergency Incidents Trend (Last 30 Days)
+          </h6>
+          <span class="badge bg-light text-secondary border">30-Day Window</span>
+        </div>
+        <div class="card-body p-4">
+          <div style="height: 300px; position: relative;">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incident Types Donut Chart -->
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-chart-pie text-primary me-2"></i>Incidents by Category
+          </h6>
+        </div>
+        <div class="card-body p-4 d-flex align-items-center justify-content-center">
+          <div style="height: 280px; width: 100%; position: relative;">
+            <canvas id="typeChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="row g-4">
+    <!-- Response Team Leaderboard Bar Chart -->
+    <div class="col-12 col-xl-7">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-trophy text-warning me-2"></i>Response Speed Leaderboard (Fastest Avg Minutes)
+          </h6>
+        </div>
+        <div class="card-body p-4">
+          <div style="height: 300px; position: relative;">
+            <canvas id="teamChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Incident-Prone Zones List -->
+    <div class="col-12 col-xl-5">
+      <div class="card border-0 shadow-sm rounded-3 h-100">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-map-pin text-danger me-2"></i>Top Incident Hotspots by Campus Sector
+          </h6>
+        </div>
+        <div class="card-body p-4">
+          <div id="hotspot-list" class="d-flex flex-column gap-3">
+            <div class="text-center py-4 text-muted small">Loading hotspot analytics...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js 4.x CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('/api/admin/analytics/')
+    .then(res => res.json())
+    .then(data => {
+      // Update counters
+      document.getElementById('stat-total-incidents').textContent = data.total_incidents;
+      document.getElementById('stat-pending-incidents').textContent = data.pending_incidents;
+      document.getElementById('stat-active-teams').textContent = data.active_teams_count;
+      document.getElementById('stat-avg-response').textContent = data.avg_response_time;
+
+      // 1. Line Chart: 30-Day Trend
+      const trendLabels = data.incidents_by_day.map(d => d.date);
+      const trendValues = data.incidents_by_day.map(d => d.count);
+      
+      const ctxTrend = document.getElementById('trendChart').getContext('2d');
+      new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+          labels: trendLabels,
+          datasets: [{
+            label: 'Incidents Reported',
+            data: trendValues,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            borderWidth: 2.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // 2. Donut Chart: Incident Types
+      const typeLabels = Object.keys(data.incidents_by_type).map(t => t.toUpperCase());
+      const typeValues = Object.values(data.incidents_by_type);
+      const typeColors = ['#ef4444', '#f97316', '#8b5cf6', '#ec4899', '#64748b', '#06b6d4'];
+
+      const ctxType = document.getElementById('typeChart').getContext('2d');
+      new Chart(ctxType, {
+        type: 'doughnut',
+        data: {
+          labels: typeLabels,
+          datasets: [{
+            data: typeValues,
+            backgroundColor: typeColors,
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          },
+          cutout: '65%'
+        }
+      });
+
+      // 3. Bar Chart: Team Leaderboard
+      const teamNames = data.team_leaderboard.map(t => t.name);
+      const teamTimes = data.team_leaderboard.map(t => t.avg_response_time);
+
+      const ctxTeam = document.getElementById('teamChart').getContext('2d');
+      new Chart(ctxTeam, {
+        type: 'bar',
+        data: {
+          labels: teamNames,
+          datasets: [{
+            label: 'Avg Response Time (minutes)',
+            data: teamTimes,
+            backgroundColor: '#10b981',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Minutes' }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // 4. Hotspots list
+      const hotspotContainer = document.getElementById('hotspot-list');
+      hotspotContainer.innerHTML = '';
+      
+      if (data.top_zones_by_incident_count && data.top_zones_by_incident_count.length > 0) {
+        const maxCount = Math.max(...data.top_zones_by_incident_count.map(z => z.count), 1);
+        
+        data.top_zones_by_incident_count.forEach((z, index) => {
+          const percent = Math.round((z.count / maxCount) * 100);
+          const itemHtml = `
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold text-dark">
+                  <span class="badge bg-secondary me-2">#${index + 1}</span>${z.zone}
+                </span>
+                <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">${z.count} incidents</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: ${percent}%;"></div>
+              </div>
+            </div>
+          `;
+          hotspotContainer.insertAdjacentHTML('beforeend', itemHtml);
+        });
+      } else {
+        hotspotContainer.innerHTML = '<div class="text-muted small text-center py-4">No zone data available.</div>';
+      }
+
+    })
+    .catch(err => {
+      console.error('Error fetching analytics:', err);
+    });
+});
+</script>
+{% endblock %}
