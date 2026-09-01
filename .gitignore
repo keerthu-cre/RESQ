@@ -50,3 +50,4 @@ media/incidents/*
 .DS_Store
 Thumbs.db
 *.zip
+db.sqlite3
